@@ -1,43 +1,74 @@
-var scene = new THREE.Scene();
-var aspectRatio = window.innerWidth / window.innerHeight;
-var camera = new THREE.PerspectiveCamera(30, aspectRatio, 0.1, 10000);
-camera.position.z = 10;
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000);
+const stage = document.querySelector('.stage');
+const mapContainer = document.querySelector('.map-container');
+const map = document.querySelector('.map');
 
-document.body.appendChild(renderer.domElement);
+class Dude {
+    constructor(el) {
+        this.stage = el.stage;
+        this.mapContainer = el.mapContainer;
+        this.map = el.map;
+        this.stageWidth = this.stage.offsetWidth;
+        this.stageWidthPercent = this.stageWidth/this.map.offsetWidth * 100;
 
-var group = new THREE.Object3D();
+        this.time = 20;
+        this.mapWidth = 100;
 
-//Setup the light
-scene.add(new THREE.AmbientLight(0xEEEEEE));
-var light = new THREE.SpotLight(0xFFFFFF, 0.5, 0, Math.PI / 2, 1);
-light.position.set(1000, 3000, 1000);
-light.target.position.set (2000, 3800, 1000);
-scene.add(light);
+        this.dudes;
+        this.bubblesArray;
 
-THREE.ImageUtils.crossOrigin = '';
+        this.attachEvents();
+        this.mapContainer.addEventListener('animationiteration', (e) => {
+          if(e.target !== this.mapContainer) {
+            return;
+          }
 
-var geometry = new THREE.SphereGeometry(2, 300, 300);
-var texture = THREE.ImageUtils.loadTexture("img/earth_colored2.png");
+          this.bubblesArray.forEach((item) => {
+            item.classList.remove('animated');
+          });
 
-var material = new THREE.MeshPhongMaterial({
-    color: 0xaaaaaa,
-    specular: 0x333333,
-    map: texture,
-    bumpScale: 0.2,
-    shininess: 10
-});
+          this.mapContainer.getBoundingClientRect();
 
-var earth = new THREE.Mesh(geometry, material);
-earth.rotation.z = 23.439281 * Math.PI / 180;
-group.add(earth);
-scene.add(group);
+          this.bubblesArray.forEach((item) => {
+            item.classList.add('animated');
+          });
+        });
+    }
 
-function render() {
-    requestAnimationFrame(render);
-    renderer.render(scene, camera);
+    attachEvents() {
+      this.setupMapItems();
+      this.getGuys();
+    }
+
+    setupMapItems() {
+      const clonedMap = this.map.cloneNode(true);
+      this.mapContainer.append(clonedMap);
+      const clonedDudes = clonedMap.querySelectorAll('.dude');
+      const arrayCloned = Array.apply(null, clonedDudes);
+      arrayCloned.forEach((item) => {
+        const original = Number(item.getAttribute('data-time'));
+        item.setAttribute('data-time', original + 100)
+      });
+      this.dudes = this.stage.querySelectorAll('.dude');
+      this.bubblesArray = Array.apply(null, this.dudes);
+    }
+
+    getGuys() {
+      this.bubblesArray.map((item) => {
+        const position = Number(item.getAttribute('data-time'));
+        this.calculateTiming(position, item);
+      })
+    }
+
+    calculateTiming(el, item) {
+      const positionPrimary = el;
+
+      const stageHalfProcent = this.stageWidthPercent/2; //percent of the half of the stage
+      const position = positionPrimary - stageHalfProcent;
+      const whenToShow = position/this.mapWidth * this.time * 1000;
+
+      item.style.animationDelay = whenToShow + 'ms';
+    }
+
 }
 
-render();
+new Dude({stage, mapContainer, map});
