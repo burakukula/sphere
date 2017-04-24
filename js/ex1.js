@@ -1,32 +1,30 @@
-var WIDTH = window.innerWidth,
-    HEIGHT = window.innerHeight;
+var WIDTH = 600;
+var HEIGHT = 600;
 
-var angle = 45,
-    aspect = WIDTH / HEIGHT,
-    near = 0.1,
-    far = 3000;
+var angle = 45;
+var aspect = WIDTH / HEIGHT;
 
-var container = document.getElementById('container');
+var container = document.querySelector('.container');
+var setCanvas = document.getElementById('canvas');
 
-var camera = new THREE.PerspectiveCamera(angle, aspect, near, far);
+var camera = new THREE.PerspectiveCamera();
 camera.position.set(0, 0, 0);
 var scene = new THREE.Scene();
+scene.background = new THREE.Color( 0x1b2e57 );
 
-var light = new THREE.SpotLight(0xFFFFFF, 1, 0, Math.PI / 2, 1);
-light.position.set(4000, 4000, 1500);
-light.target.position.set (1000, 3800, 1000);
-
-scene.add(light);
+var light = new THREE.HemisphereLight( 0xdbdbdb, 0x1b2e57, 2 );
+scene.add( light );
 
 var loadingManager = new THREE.LoadingManager();
 var loader = new THREE.TextureLoader(loadingManager);
 
-var texture = loader.load("img/earth_colored2.png", myInit);
-
-var earthGeo = new THREE.SphereGeometry (30, 40, 400);
+var texture = loader.load('img/map-4-100.jpg');
+// var bump = loader.load("img/map-5-100.jpg", myInit);
+var earthGeo = new THREE.SphereGeometry (40, 40, 400);
 var earthMat = new THREE.MeshPhongMaterial({
   color: 0xaaaaaa,
-  map: texture,
+  map: texture
+  // bumpMap: bump
 });
 
 var earthMesh = new THREE.Mesh(earthGeo, earthMat);
@@ -35,15 +33,11 @@ earthMesh.position.set(-100, 0, 0);
 scene.add(earthMesh);
 camera.lookAt( earthMesh.position );
 
-var renderer = new THREE.WebGLRenderer({antialiasing : true});
+var renderer = new THREE.WebGLRenderer({antialias : true, canvas : setCanvas});
 renderer.setSize(WIDTH, HEIGHT);
 renderer.domElement.style.position = 'relative';
 
 container.appendChild(renderer.domElement);
-
-function myInit(texture) {
-  render();
-}
 
 var isDragging = false;
 var previousMousePosition = {
@@ -51,15 +45,15 @@ var previousMousePosition = {
     y: 0
 };
 
-const toRadians = (angle) => {
+var toRadians = (angle) => {
     return angle * (Math.PI / 180);
 };
 
-const toDegrees = (angle) => {
+var toDegrees = (angle) => {
     return angle * (180 / Math.PI);
 };
 
-const renderArea = renderer.domElement;
+var renderArea = renderer.domElement;
 
 renderArea.addEventListener('mousedown', (e) => {
     isDragging = true;
@@ -93,8 +87,7 @@ document.addEventListener('mouseup', (e) => {
 
 function render () {
   requestAnimationFrame( render );
-  earthMesh.rotation.y += 0.001;
-
+  earthMesh.rotation.y -= 0.001;
   renderer.render(scene, camera);
 }
 
