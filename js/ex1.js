@@ -1,94 +1,92 @@
-var WIDTH = 600;
-var HEIGHT = 600;
+const $face = document.getElementById('face');
+const $face1 = document.getElementById('face1');
 
-var angle = 45;
-var aspect = WIDTH / HEIGHT;
+const WIDTH = 600;
+const HEIGHT = 600;
 
-var container = document.querySelector('.container');
-var setCanvas = document.getElementById('canvas');
+const ANGLE = 45;
+const ASPECT = WIDTH / HEIGHT;
 
-var camera = new THREE.PerspectiveCamera();
-camera.position.set(0, 0, 0);
-var scene = new THREE.Scene();
+const container = document.querySelector('.container');
+const setCanvas = document.getElementById('canvas');
+
+const camera = new THREE.PerspectiveCamera(ANGLE, ASPECT, 1, 3000);
+camera.position.set(200, 0, 0);
+camera.lookAt(0, 0 , 0);
+
+const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x1b2e57 );
 
-var light = new THREE.HemisphereLight( 0xdbdbdb, 0x1b2e57, 2 );
+const light = new THREE.HemisphereLight( 0xdbdbdb, 0x1b2e57, 2 );
 scene.add( light );
 
-var loadingManager = new THREE.LoadingManager();
-var loader = new THREE.TextureLoader(loadingManager);
+const loadingManager = new THREE.LoadingManager();
+const loader = new THREE.TextureLoader(loadingManager);
 
-var texture = loader.load('img/map-4-100.jpg');
-// var bump = loader.load("img/map-5-100.jpg", myInit);
-var earthGeo = new THREE.SphereGeometry (40, 40, 400);
-var earthMat = new THREE.MeshPhongMaterial({
+const texture = loader.load('img/map-4-100.jpg');
+const earthGeo = new THREE.SphereGeometry (40, 40, 400);
+const earthMat = new THREE.MeshPhongMaterial({
   color: 0xaaaaaa,
   map: texture
-  // bumpMap: bump
 });
 
-var earthMesh = new THREE.Mesh(earthGeo, earthMat);
-earthMesh.position.set(-100, 0, 0);
+const sphere = new THREE.Mesh(earthGeo, earthMat);
+sphere.position.set(0, 0, 0);
 
-scene.add(earthMesh);
-camera.lookAt( earthMesh.position );
+// var face = new THREE.Object3D()
+const face = new THREE.Mesh(earthGeo, earthMat);
+face.scale.multiplyScalar(0.1);
+face.position.set(0, 0, 0);
 
-var renderer = new THREE.WebGLRenderer({antialias : true, canvas : setCanvas});
+const face1 = new THREE.Mesh(earthGeo, earthMat);
+face1.scale.multiplyScalar(0.1);
+face1.position.set(0, 20, 0);
+
+
+sphere.add(face);
+sphere.add(face1);
+scene.add(sphere);
+camera.lookAt( sphere.position );
+
+const renderer = new THREE.WebGLRenderer({antialias : true, canvas : setCanvas});
 renderer.setSize(WIDTH, HEIGHT);
 renderer.domElement.style.position = 'relative';
 
 container.appendChild(renderer.domElement);
 
-var isDragging = false;
-var previousMousePosition = {
-    x: 0,
-    y: 0
-};
+let radius = 50;
+let angle = 0;
+let speed = -0.8;
+const clock = new THREE.Clock();
 
-var toRadians = (angle) => {
-    return angle * (Math.PI / 180);
-};
-
-var toDegrees = (angle) => {
-    return angle * (180 / Math.PI);
-};
-
-var renderArea = renderer.domElement;
-
-renderArea.addEventListener('mousedown', (e) => {
-    isDragging = true;
-});
-
-renderArea.addEventListener('mousemove', (e) => {
-    var deltaMove = {
-        x: e.offsetX-previousMousePosition.x,
-        y: e.offsetY-previousMousePosition.y
-    };
-
-    if(isDragging) {
-
-        let deltaRotationQuaternion = new THREE.Quaternion().
-        setFromEuler(
-            new THREE.Euler(toRadians(deltaMove.y * 1), toRadians(deltaMove.x * 1), 0, 'XYZ')
-        );
-
-        earthMesh.quaternion.multiplyQuaternions(deltaRotationQuaternion, earthMesh.quaternion);
-    }
-
-    previousMousePosition = {
-        x: e.offsetX,
-        y: e.offsetY
-    };
-});
-
-document.addEventListener('mouseup', (e) => {
-    isDragging = false;
-});
-
-function render () {
-  requestAnimationFrame( render );
-  earthMesh.rotation.y -= 0.001;
-  renderer.render(scene, camera);
+const updateDiv = (div, x, y, yyy) => {
+  xA = Math.round(x) * 4;
+  // y = Math.round(y) * 2;
+  var scale = 1;
+  div.style.transform = `translate(${300+xA}px, ${yyy}px) scale(${scale})`;
 }
 
+const render = () => {
+  delta = clock.getDelta();
+  if (delta) {
+    sphere.rotation.y += (delta * Math.PI / 180) * 10;
+    // sphere.rotation.y += speed * delta;
+
+    angle += speed * delta;
+    face.position.x = sphere.position.x + radius * Math.cos( angle );
+    face.position.z = sphere.position.z + radius * Math.sin( angle );
+
+    face1.position.x = sphere.position.x + 40 * Math.cos( angle );
+    face1.position.z = sphere.position.z + 40 * Math.sin( angle );
+    // camera.lookAt( sphere.position );
+
+    // face.position.x = sphere.position.x + radius * Math.cos( angle );
+    // face.position.z = sphere.position.z + radius * Math.sin( angle );
+    updateDiv($face, face.position.x, face.position.z, 300);
+    updateDiv($face1, face1.position.x, face1.position.z, 220);
+  }
+  renderer.render(scene, camera);
+  requestAnimationFrame( render );
+}
 render();
+// setInterval(render, 500);
