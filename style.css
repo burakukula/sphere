@@ -19,7 +19,7 @@ body {
   height: 30px;
   border-radius: 50%;
   background-color: #eee;
-  position: absolute;;
+  position: absolute;
   z-index: 100;
   top: 285px;
   left: 285px;
@@ -33,7 +33,7 @@ body {
   position: relative;
   width: 600px;
   height: 600px;
-  perspective: 100px;
+  /*perspective: 100px;*/
 }
 
 canvas {
