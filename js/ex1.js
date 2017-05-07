@@ -1,92 +1,269 @@
-const $face = document.getElementById('face');
-const $face1 = document.getElementById('face1');
+window.log = function()
+{
+	if (this.console)
+	{
+		console.log(Array.prototype.slice.call(arguments));
+	}
+};
 
-const WIDTH = 600;
-const HEIGHT = 600;
+// Namespace
+var Defmech = Defmech ||
+{};
 
-const ANGLE = 45;
-const ASPECT = WIDTH / HEIGHT;
+Defmech.RotationWithQuaternion = (function()
+{
+	'use_strict';
 
-const container = document.querySelector('.container');
-const setCanvas = document.getElementById('canvas');
+	var container;
 
-const camera = new THREE.PerspectiveCamera(ANGLE, ASPECT, 1, 3000);
-camera.position.set(200, 0, 0);
-camera.lookAt(0, 0 , 0);
+	var camera, scene, renderer;
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0x1b2e57 );
+	var cube, plane;
 
-const light = new THREE.HemisphereLight( 0xdbdbdb, 0x1b2e57, 2 );
-scene.add( light );
+	var mouseDown = false;
+	var rotateStartPoint = new THREE.Vector3(0, 0, 1);
+	var rotateEndPoint = new THREE.Vector3(0, 0, 1);
 
-const loadingManager = new THREE.LoadingManager();
-const loader = new THREE.TextureLoader(loadingManager);
+	var curQuaternion;
+	var windowHalfX = window.innerWidth / 2;
+	var windowHalfY = window.innerHeight / 2;
+	var rotationSpeed = 2;
+	var lastMoveTimestamp,
+		moveReleaseTimeDelta = 50;
 
-const texture = loader.load('img/map-4-100.jpg');
-const earthGeo = new THREE.SphereGeometry (40, 40, 400);
-const earthMat = new THREE.MeshPhongMaterial({
-  color: 0xaaaaaa,
-  map: texture
-});
+	var startPoint = {
+		x: 0,
+		y: 0
+	};
 
-const globe = new THREE.Mesh(earthGeo, earthMat);
-globe.position.set(0, 0, 0);
+	var deltaX = 0,
+		deltaY = 0;
 
-// var face = new THREE.Object3D()
-const face = new THREE.Mesh(earthGeo, earthMat);
-face.scale.multiplyScalar(0.1);
-face.position.set(0, 0, 0);
+	var setup = function()
+	{
+		container = document.createElement('div');
+		document.body.appendChild(container);
 
-const face1 = new THREE.Mesh(earthGeo, earthMat);
-face1.scale.multiplyScalar(0.1);
-face1.position.set(0, 20, 0);
+		var info = document.createElement('div');
+		info.style.position = 'absolute';
+		info.style.top = '10px';
+		info.style.width = '100%';
+		info.style.textAlign = 'center';
+		info.innerHTML = 'Drag to spin the cube';
+		container.appendChild(info);
 
+		camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+		camera.position.y = 150;
+		camera.position.z = 500;
 
-globe.add(face);
-globe.add(face1);
-scene.add(globe);
-camera.lookAt( globe.position );
+		scene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer({antialias : true, canvas : setCanvas});
-renderer.setSize(WIDTH, HEIGHT);
-renderer.domElement.style.position = 'relative';
+		// Cube
 
-container.appendChild(renderer.domElement);
+		var boxGeometry = new THREE.BoxGeometry(200, 200, 200);
 
-let radius = 20;
-let angle = 0;
-let speed = -0.8;
-const clock = new THREE.Clock();
+		for (var i = 0; i < boxGeometry.faces.length; i += 2)
+		{
 
-const updateDiv = (div, x, y, yyy) => {
-  xA = Math.round(x) * 4;
-  // y = Math.round(y) * 2;
-  var scale = 1;
-  div.style.transform = `translate(${300+xA}px, ${yyy}px) scale(${scale})`;
-}
+			var color = {
+				h: (1 / (boxGeometry.faces.length)) * i,
+				s: 0.5,
+				l: 0.5
+			};
 
-const render = () => {
-  delta = clock.getDelta();
-  if (delta) {
-    globe.rotation.y += (delta * Math.PI / 180) * 10;
-    // globe.rotation.y += speed * delta;
+			boxGeometry.faces[i].color.setHSL(color.h, color.s, color.l);
+			boxGeometry.faces[i + 1].color.setHSL(color.h, color.s, color.l);
 
-    angle += speed * delta;
-    face.position.x = globe.position.x + radius * Math.cos( angle );
-    face.position.z = globe.position.z + radius * Math.sin( angle );
+		}
 
-    face1.position.x = globe.position.x + 40 * Math.cos( angle );
-    face1.position.z = globe.position.z + 40 * Math.sin( angle );
-    // camera.lookAt( globe.position );
+		var cubeMaterial = new THREE.MeshBasicMaterial(
+		{
+			vertexColors: THREE.FaceColors,
+			overdraw: 0.5
+		});
 
-    // face.position.x = globe.position.x + radius * Math.cos( angle );
-    // face.position.z = globe.position.z + radius * Math.sin( angle );
-    updateDiv($face, face.position.x, face.position.z, 300);
-    updateDiv($face1, face1.position.x, face1.position.z, 220);
-  }
-  renderer.render(scene, camera);
-  requestAnimationFrame( render );
-}
-render();
-// setInterval(render, 500);
+		cube = new THREE.Mesh(boxGeometry, cubeMaterial);
+		cube.position.y = 200;
+		scene.add(cube);
+
+		// Plane
+
+		var planeGeometry = new THREE.PlaneGeometry(200, 200);
+		planeGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+
+		var planeMaterial = new THREE.MeshBasicMaterial(
+		{
+			color: 0xe0e0e0,
+			overdraw: 0.5
+		});
+
+		plane = new THREE.Mesh(planeGeometry, planeMaterial);
+		scene.add(plane);
+
+		renderer = new THREE.CanvasRenderer();
+		renderer.setClearColor(0xf0f0f0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		container.appendChild(renderer.domElement);
+
+		document.addEventListener('mousedown', onDocumentMouseDown, false);
+
+		window.addEventListener('resize', onWindowResize, false);
+
+		animate();
+	};
+
+	function onDocumentMouseDown(event)
+	{
+		event.preventDefault();
+
+		document.addEventListener('mousemove', onDocumentMouseMove, false);
+		document.addEventListener('mouseup', onDocumentMouseUp, false);
+
+		mouseDown = true;
+
+		startPoint = {
+			x: event.clientX,
+			y: event.clientY
+		};
+
+		rotateStartPoint = rotateEndPoint = projectOnTrackball(0, 0);
+	}
+
+	function onDocumentMouseMove(event)
+	{
+		deltaX = event.x - startPoint.x;
+		deltaY = event.y - startPoint.y;
+
+		handleRotation();
+
+		startPoint.x = event.x;
+		startPoint.y = event.y;
+
+		lastMoveTimestamp = new Date();
+	}
+
+	function onDocumentMouseUp(event)
+	{
+		if (new Date().getTime() - lastMoveTimestamp.getTime() > moveReleaseTimeDelta)
+		{
+			deltaX = event.x - startPoint.x;
+			deltaY = event.y - startPoint.y;
+		}
+
+		mouseDown = false;
+
+		document.removeEventListener('mousemove', onDocumentMouseMove, false);
+		document.removeEventListener('mouseup', onDocumentMouseUp, false);
+	}
+
+	function projectOnTrackball(touchX, touchY)
+	{
+		var mouseOnBall = new THREE.Vector3();
+
+		mouseOnBall.set(
+			clamp(touchX / windowHalfX, -1, 1), clamp(-touchY / windowHalfY, -1, 1),
+			0.0
+		);
+
+		var length = mouseOnBall.length();
+
+		if (length > 1.0)
+		{
+			mouseOnBall.normalize();
+		}
+		else
+		{
+			mouseOnBall.z = Math.sqrt(1.0 - length * length);
+		}
+
+		return mouseOnBall;
+	}
+
+	function rotateMatrix(rotateStart, rotateEnd)
+	{
+		var axis = new THREE.Vector3(),
+			quaternion = new THREE.Quaternion();
+
+		var angle = Math.acos(rotateStart.dot(rotateEnd) / rotateStart.length() / rotateEnd.length());
+
+		if (angle)
+		{
+			axis.crossVectors(rotateStart, rotateEnd).normalize();
+			angle *= rotationSpeed;
+			quaternion.setFromAxisAngle(axis, angle);
+		}
+		return quaternion;
+	}
+
+	function clamp(value, min, max)
+	{
+		return Math.min(Math.max(value, min), max);
+	}
+
+	function animate()
+	{
+		requestAnimationFrame(animate);
+		render();
+	}
+
+	function render()
+	{
+		if (!mouseDown)
+		{
+			var drag = 0.95;
+			var minDelta = 0.05;
+
+			if (deltaX < -minDelta || deltaX > minDelta)
+			{
+				deltaX *= drag;
+			}
+			else
+			{
+				deltaX = 0;
+			}
+
+			if (deltaY < -minDelta || deltaY > minDelta)
+			{
+				deltaY *= drag;
+			}
+			else
+			{
+				deltaY = 0;
+			}
+
+			handleRotation();
+		}
+
+		renderer.render(scene, camera);
+	}
+
+	var handleRotation = function()
+	{
+		rotateEndPoint = projectOnTrackball(deltaX, deltaY);
+
+		var rotateQuaternion = rotateMatrix(rotateStartPoint, rotateEndPoint);
+		curQuaternion = cube.quaternion;
+		curQuaternion.multiplyQuaternions(rotateQuaternion, curQuaternion);
+		curQuaternion.normalize();
+		cube.setRotationFromQuaternion(curQuaternion);
+
+		rotateEndPoint = rotateStartPoint;
+	};
+
+	// PUBLIC INTERFACE
+	return {
+		init: function()
+		{
+			setup();
+		}
+	};
+})();
+
+document.onreadystatechange = function()
+{
+	if (document.readyState === 'complete')
+	{
+		Defmech.RotationWithQuaternion.init();
+	}
+};

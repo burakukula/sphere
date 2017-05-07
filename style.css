@@ -3,17 +3,6 @@ body {
   background-color: #1b2e57;
 }
 
-#face, #face1, #ex {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: #eee;
-  position: absolute;;
-  z-index: 100;
-  top: 285px;
-  left: 285px;
-}
-
 .face {
   width: 30px;
   height: 30px;
@@ -26,7 +15,7 @@ body {
 }
 
 .face.hidden {
-  opacity: 0.5;
+  opacity: 0.1;
 }
 
 .container {

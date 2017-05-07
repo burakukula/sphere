@@ -7,7 +7,7 @@ const radius = 20;
 const width = 600;
 const height = 600;
 
-const cameraZposition = 150;
+const cameraZposition = 60;
 const cameraDeg = 45;
 const cameraDegRad = (2 * Math.PI) * cameraDeg/360;
 
@@ -58,9 +58,10 @@ const obj2 = new THREE.Object3D();
 const obj3 = new THREE.Object3D();
 obj.position.z = radius;
 obj2.position.y = 10;
-obj2.position.z = 17.320;
-obj3.position.y = -10;
-obj3.position.z = 17.320;
+obj2.position.z = -17.320;
+obj3.position.y = -15;
+obj3.position.x = -10;
+obj3.position.z = 10.320;
 sphere.add( obj );
 sphere.add( obj2 );
 sphere.add( obj3 );
@@ -80,19 +81,66 @@ const points = [
 
 // update matrix
 sphere.updateMatrixWorld();
-// const position = new THREE.Vector3();
+const pos = new THREE.Vector3();
 
 // update element position
 const updatePosition = (el, x, y, z) => {
   el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
 }
 
+const toRadians = (angle) => {
+    return angle * (Math.PI / 180);
+};
+
+const renderArea = renderer.domElement;
+
+// mouse events
+let moving = false;
+let startPoint = {
+    x: 0,
+    y: 0
+};
+
+renderArea.addEventListener('mousedown', (e) => {
+    moving = true;
+});
+
+renderArea.addEventListener('mousemove', (e) => {
+    let deltaMove = {
+        x: e.offsetX-startPoint.x
+    };
+
+    if (moving) {
+        let quaternionThree = new THREE.Quaternion().
+        setFromEuler(
+            new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
+        );
+        sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
+    }
+
+    startPoint = {
+        x: e.offsetX,
+        y: e.offsetY
+    };
+});
+
+window.addEventListener('mouseup', (e) => {
+  moving = false;
+});
+
+window.addEventListener('touchstart', (e) => {
+  moving = true;
+});
+
+document.addEventListener('touchend', (e) => {
+  moving = false;
+});
+
 const animate = () => {
 	requestAnimationFrame( animate );
-  sphere.rotation.y += 0.01;
+  sphere.rotation.y += 0.005;
 
   points.forEach(({el, obj}) => {
-    let pos = new THREE.Vector3();
     pos.setFromMatrixPosition(obj.matrixWorld);
     updatePosition(el, pos.x * units, pos.y * units, pos.z * units);
     pos.z < 0 ? el.classList.add('hidden') : el.classList.remove('hidden');
