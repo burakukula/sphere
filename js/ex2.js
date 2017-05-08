@@ -7,7 +7,7 @@ const radius = 20;
 const width = 600;
 const height = 600;
 
-const cameraZposition = 60;
+const cameraZposition = 80;
 const cameraDeg = 45;
 const cameraDegRad = (2 * Math.PI) * cameraDeg/360;
 
@@ -52,16 +52,33 @@ sphere.position.set(0, 0, 0);
 scene.add(sphere);
 camera.lookAt( sphere.position );
 
+const toRadians = (angle) => {
+    return angle * (Math.PI / 180);
+};
+
+const getPosition = (y, angle) => {
+  const z = Math.sqrt((radius * radius) - (y * y));
+  const x = 0;
+
+  let quaternionThree = new THREE.Quaternion()
+    .setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0), toRadians(angle)
+    );
+
+  const vectorProto = new THREE.Vector3( x, y, z );
+  vectorProto.applyQuaternion(quaternionThree);
+  return vectorProto;
+}
+
 // object
 const obj = new THREE.Object3D();
 const obj2 = new THREE.Object3D();
 const obj3 = new THREE.Object3D();
-obj.position.z = radius;
-obj2.position.y = 10;
-obj2.position.z = -17.320;
-obj3.position.y = -15;
-obj3.position.x = -10;
-obj3.position.z = 10.320;
+
+obj.position.copy(getPosition(10, 5));
+obj2.position.copy(getPosition(18, 45));
+obj3.position.copy(getPosition(-10, 105));
+
 sphere.add( obj );
 sphere.add( obj2 );
 sphere.add( obj3 );
@@ -88,9 +105,7 @@ const updatePosition = (el, x, y, z) => {
   el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
 }
 
-const toRadians = (angle) => {
-    return angle * (Math.PI / 180);
-};
+
 
 const renderArea = renderer.domElement;
 
@@ -101,27 +116,31 @@ let startPoint = {
     y: 0
 };
 
+const moveIt = (e) => {
+  let deltaMove = {
+      x: e.offsetX-startPoint.x
+  };
+
+  if (moving) {
+      let quaternionThree = new THREE.Quaternion()
+        .setFromEuler(
+          new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
+        );
+      sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
+  }
+
+  startPoint = {
+      x: e.offsetX,
+      y: e.offsetY
+  };
+}
+
 renderArea.addEventListener('mousedown', (e) => {
     moving = true;
 });
 
 renderArea.addEventListener('mousemove', (e) => {
-    let deltaMove = {
-        x: e.offsetX-startPoint.x
-    };
-
-    if (moving) {
-        let quaternionThree = new THREE.Quaternion().
-        setFromEuler(
-            new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
-        );
-        sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
-    }
-
-    startPoint = {
-        x: e.offsetX,
-        y: e.offsetY
-    };
+    moveIt(e);
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -130,6 +149,27 @@ window.addEventListener('mouseup', (e) => {
 
 window.addEventListener('touchstart', (e) => {
   moving = true;
+});
+
+window.addEventListener('touchmove', (e) => {
+  console.log('move', e.changedTouches[0]);
+  moving = true;
+  let deltaMove = {
+      x: e.changedTouches[0].clientX-startPoint.x
+  };
+
+  if (moving) {
+      let quaternionThree = new THREE.Quaternion().
+      setFromEuler(
+          new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
+      );
+      sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
+  }
+
+  startPoint = {
+      x: e.changedTouches[0].clientX,
+      y: e.changedTouches[0].clientY
+  };
 });
 
 document.addEventListener('touchend', (e) => {
