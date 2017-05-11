@@ -26,12 +26,11 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x1b2e57 );
 
 // light
-const light = new THREE.HemisphereLight( 0xdbdbdb, 0x1b2e57, 2 );
+const light = new THREE.HemisphereLight( 0xdbdbdb, 0x1c2f56, 2);
 scene.add( light );
 
 // camera
 const camera = new THREE.PerspectiveCamera( cameraDeg, width / height, 1, 200 );
-// const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 5, 1000);
 camera.position.set(0, 0, cameraZposition);
 
 // texture loader
@@ -53,7 +52,7 @@ scene.add(sphere);
 camera.lookAt( sphere.position );
 
 const toRadians = (angle) => {
-    return angle * (Math.PI / 180);
+  return angle * (Math.PI / 180);
 };
 
 const getPosition = (y, angle) => {
@@ -102,10 +101,17 @@ const pos = new THREE.Vector3();
 
 // update element position
 const updatePosition = (el, x, y, z) => {
-  el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+  let scale;
+  if (z < 0) {
+    scale = 0;
+  } else if (z > 0 && z < 8) {
+    scale = z/100;
+  } else {
+    scale = 1
+  }
+
+  el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
 }
-
-
 
 const renderArea = renderer.domElement;
 
@@ -118,15 +124,15 @@ let startPoint = {
 
 const moveIt = (e) => {
   let deltaMove = {
-      x: e.offsetX-startPoint.x
+    x: e.offsetX-startPoint.x
   };
 
   if (moving) {
-      let quaternionThree = new THREE.Quaternion()
-        .setFromEuler(
-          new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
-        );
-      sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
+    let quaternionThree = new THREE.Quaternion()
+      .setFromEuler(
+        new THREE.Euler(0, toRadians(deltaMove.x * 1), 0, 'YXZ')
+      );
+    sphere.quaternion.multiplyQuaternions(quaternionThree, sphere.quaternion);
   }
 
   startPoint = {
@@ -152,10 +158,10 @@ window.addEventListener('touchstart', (e) => {
 });
 
 window.addEventListener('touchmove', (e) => {
-  console.log('move', e.changedTouches[0]);
   moving = true;
   let deltaMove = {
-      x: e.changedTouches[0].clientX-startPoint.x
+      x: e.changedTouches[0].clientX - startPoint.x,
+      y: e.changedTouches[0].clientY - startPoint.y
   };
 
   if (moving) {
