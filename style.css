@@ -41,7 +41,7 @@ canvas {
 
 .mask {
   position: relative;
-  width: auto;
+  width: 521px;
   height: 521px;
   top: 0;
   left: 0;
@@ -78,8 +78,8 @@ z-index: -1;
 
 .map-container {
   display: flex;
-  width: 1050px;
-  animation: move-map 20s infinite linear;
+  width: 595px;
+  animation: move-map 7s infinite linear;
 }
 
 .map {
