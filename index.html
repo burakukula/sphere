@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width">
     <title>sphere webgl experiment</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://styleguide.brainly.com/115.0.0/style-guide.css" rel="stylesheet"/>
   </head>
   <body>
-    <div class="container">
-      <canvas id="canvas"></canvas>
-      <div class="face js-f1"></div>
-      <div class="face js-f2"></div>
-      <div class="face js-f3"></div>
-      <!-- <div class="face"></div> -->
+    <div class="brn-about-sphere js-sphere-container">
+      <canvas class="js-sphere-canvas"></canvas>
+      <div class="brn-about-sphere__item js-sphere-item" data-y="-10" data-angle="-10">
+          <div class="sg-bubble sg-bubble--bottom sg-bubble--small-padding brn-about-sphere__bubble js-sphere-item-bubble">
+              <div class="sg-text sg-text--xsmall">osos</div>
+          </div>
+          <div class="sg-avatar sg-avatar--large sg-avatar--with-border brn-about-sphere__avatar">
+              <img class="sg-avatar__image js-sphere-item-avatar" src="img/fejs2.png" alt="">
+          </div>
+      </div>
     </div>
     <section class="stage">
       <div class="mask">
@@ -29,8 +34,7 @@
         <span class="shadow"></span>
       </div>
     </section>
-    <script src="js/three.min.js"></script>
-    <script src="js/ex2.js"></script>
     <script src="js/script.js"></script>
+    <script src="build/sphere.bundle.js"></script>
   </body>
 </html>
