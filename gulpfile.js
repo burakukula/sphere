@@ -1,10 +1,14 @@
-const gulp = require('gulp');
-const babel = require('gulp-babel');
+'use strict';
 
-gulp.task('default', () =>
-    gulp.src('src/app.js')
-        .pipe(babel({
-            presets: ['env']
-        }))
-        .pipe(gulp.dest('dist'))
-);
+var gulp = require('gulp');
+var sass = require('gulp-sass');
+
+gulp.task('sass', function () {
+    return gulp.src('./sass/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest('./css'));
+});
+
+gulp.task('sass:watch', function () {
+    gulp.watch('./sass/**/*.scss', ['sass']);
+});

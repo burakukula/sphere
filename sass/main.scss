@@ -1,0 +1,78 @@
+$markerAvatarSize: 35px;
+$markerAvatarMargin: 2px;
+
+.brn-about {
+  &__static {
+    padding-top: gutter(2);
+  }
+
+  &__action-buttons {
+    max-width: gutter(11);
+    margin: auto;
+    padding: gutter(1) 0;
+  }
+}
+
+.brn-about-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #eee;
+
+  &__line {
+    height: 1px;
+    background: #eee;
+    width: 100%;
+  }
+
+  &__text {
+    padding: 0 gutter(1/3);
+  }
+}
+
+.brn-about-sphere {
+  max-width: 750px;
+  position: relative;
+  cursor: default;
+  width: 100%;
+  height: 100%;
+
+  &__item {
+    position: absolute;
+    top: calc(50% - #{$markerAvatarSize / 2});
+    left: calc(50% - #{$markerAvatarSize / 2});
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: opacity, transform;
+    pointer-events: none;
+    user-select: none;
+
+    &--visible {
+      opacity: 1;
+    }
+  }
+
+  &__avatar {
+    position: relative;
+    width: $markerAvatarSize;
+    height: $markerAvatarSize;
+    background-size: cover;
+    z-index: 1;
+  }
+
+  &__bubble {
+    position: absolute;
+    left: $markerAvatarSize / 2;
+    top: -20%;
+    will-change: transform;
+    transition: transform 0.2s ease-in-out;
+    transform: scaleX(0) translate3d(-50%, 20%, 0);
+    transform-origin: left;
+    z-index: 0;
+    white-space: nowrap;
+
+    &--visible {
+      transform: scaleX(1) translate3d(-50%, 0, 0);
+    }
+  }
+}

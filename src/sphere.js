@@ -47,6 +47,7 @@ class Sphere {
     this.zoomInTime = 0;
     this.momentum = 0;
     this.lastXDelta = 0;
+    this.suspended = false;
 
     this.init();
     this.rotate = this.rotate.bind(this);
@@ -153,6 +154,7 @@ class Sphere {
 
   startAnimation() {
     if (this.suspended) {
+      console.log('sus?');
       this.suspended = false;
 
       if (this.status === STATUS_READY) {

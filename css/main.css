@@ -1,0 +1,55 @@
+.brn-about__static {
+  padding-top: gutter(2); }
+
+.brn-about__action-buttons {
+  max-width: gutter(11);
+  margin: auto;
+  padding: gutter(1) 0; }
+
+.brn-about-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #eee; }
+  .brn-about-separator__line {
+    height: 1px;
+    background: #eee;
+    width: 100%; }
+  .brn-about-separator__text {
+    padding: 0 gutter(1/3); }
+
+.brn-about-sphere {
+  max-width: 750px;
+  position: relative;
+  cursor: default;
+  width: 100%;
+  height: 100%; }
+  .brn-about-sphere__item {
+    position: absolute;
+    top: calc(50% - 17.5px);
+    left: calc(50% - 17.5px);
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: opacity, transform;
+    pointer-events: none;
+    user-select: none; }
+    .brn-about-sphere__item--visible {
+      opacity: 1; }
+  .brn-about-sphere__avatar {
+    position: relative;
+    width: 35px;
+    height: 35px;
+    background-size: cover;
+    z-index: 1; }
+  .brn-about-sphere__bubble {
+    position: absolute;
+    left: 17.5px;
+    top: -20%;
+    will-change: transform;
+    transition: transform 0.2s ease-in-out;
+    transform: scaleX(0) translate3d(-50%, 20%, 0);
+    transform-origin: left;
+    z-index: 0;
+    white-space: nowrap; }
+    .brn-about-sphere__bubble--visible {
+      transform: scaleX(1) translate3d(-50%, 0, 0); }
