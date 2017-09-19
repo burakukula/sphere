@@ -3231,7 +3231,7 @@ var Sphere = function () {
     this.container = container;
     this.rotationSpeed = BASE_ROTATION_SPEED;
     this.renderer = new _threeModule.WebGLRenderer({ antialias: true, canvas: this.canvas });
-    this.textureIMG = './img/map-6-small.png';
+    this.textureIMG = './img/sphere-map-small.jpg';
     this.status = STATUS_LOADING;
     this.manualMoving = false;
     this.suspended = true;
@@ -3256,7 +3256,7 @@ var Sphere = function () {
     value: function enableSandMode() {
       var _this = this;
 
-      var imgDir = '/app/img/sphere/sand';
+      var imgDir = './img/sand';
       var textureImg = imgDir + '/map-final.jpg';
 
       var loader = new _threeModule.TextureLoader();

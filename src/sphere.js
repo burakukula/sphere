@@ -39,7 +39,7 @@ class Sphere {
     this.container = container;
     this.rotationSpeed = BASE_ROTATION_SPEED;
     this.renderer = new WebGLRenderer({antialias: true, canvas: this.canvas});
-    this.textureIMG = './img/map-6-small.png';
+    this.textureIMG = './img/sphere-map-small.jpg';
     this.status = STATUS_LOADING;
     this.manualMoving = false;
     this.suspended = true;
@@ -60,7 +60,7 @@ class Sphere {
   }
 
   enableSandMode() {
-    const imgDir = '/app/img/sphere/sand';
+    const imgDir = './img/sand';
     const textureImg = `${imgDir}/map-final.jpg`;
 
     const loader = new TextureLoader();
