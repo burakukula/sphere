@@ -1,7 +1,6 @@
 import {
   WebGLRenderer,
   TextureLoader,
-  LinearFilter,
   SphereGeometry,
   MeshPhongMaterial,
   Mesh,
@@ -42,12 +41,11 @@ class Sphere {
     this.textureIMG = './img/sphere-map-small.jpg';
     this.status = STATUS_LOADING;
     this.manualMoving = false;
-    this.suspended = true;
+    this.suspended = false;
     this.helperVector = new Vector3();
     this.zoomInTime = 0;
     this.momentum = 0;
     this.lastXDelta = 0;
-    this.suspended = false;
 
     this.init();
     this.rotate = this.rotate.bind(this);
@@ -83,8 +81,6 @@ class Sphere {
       this.status = STATUS_LOADED;
       requestAnimationFrame(this.zoomIn);
     });
-
-    texture.minFilter = LinearFilter;
 
     // sphere
     const sphereGeo = new SphereGeometry(radius, globeSegments, globeSegments);

@@ -1,3 +1,30 @@
+.brn-about__static {
+  padding-top: 48px; }
+  @media (min-width: 768px) {
+    .brn-about__static {
+      padding-top: 96px; } }
+
+.brn-about__action-buttons {
+  max-width: 264px;
+  margin: auto;
+  padding: 24px 0; }
+  @media (min-width: 768px) {
+    .brn-about__action-buttons {
+      margin: 0;
+      padding: 0; } }
+
+.brn-about-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #9fa6b5; }
+  .brn-about-separator__line {
+    height: 1px;
+    background: #9fa6b5;
+    width: 100%; }
+  .brn-about-separator__text {
+    padding: 0 8px; }
+
 .brn-about-sphere {
   position: relative;
   cursor: default;
@@ -26,11 +53,11 @@
     z-index: 1; }
   .brn-about-sphere__bubble {
     position: absolute;
-    left: 22.5px;
-    top: -17.6px;
+    left: 17.5px;
+    top: -49px;
     will-change: transform;
     transition: transform 0.2s ease-in-out;
-    transform: scaleX(0) translate3d(-50%, 2.1px, 0);
+    transform: scaleX(0) translate3d(-50%, 14px, 0);
     transform-origin: left;
     z-index: 0;
     white-space: nowrap; }

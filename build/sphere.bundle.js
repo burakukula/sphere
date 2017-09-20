@@ -3234,12 +3234,11 @@ var Sphere = function () {
     this.textureIMG = './img/sphere-map-small.jpg';
     this.status = STATUS_LOADING;
     this.manualMoving = false;
-    this.suspended = true;
+    this.suspended = false;
     this.helperVector = new _threeModule.Vector3();
     this.zoomInTime = 0;
     this.momentum = 0;
     this.lastXDelta = 0;
-    this.suspended = false;
 
     this.init();
     this.rotate = this.rotate.bind(this);
@@ -3283,7 +3282,7 @@ var Sphere = function () {
         requestAnimationFrame(_this2.zoomIn);
       });
 
-      texture.minFilter = _threeModule.LinearFilter;
+      // texture.minFilter = LinearFilter;
 
       // sphere
       var sphereGeo = new _threeModule.SphereGeometry(_setup.radius, _setup.globeSegments, _setup.globeSegments);
